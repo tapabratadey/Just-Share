@@ -2,10 +2,14 @@ import Head from 'next/head';
 import styles from '../styles/Home.module.css';
 import { useEffect, useState } from 'react';
 import { ethers } from 'ethers';
+import ABI from '../utils/WavePortal.json';
 
 export default function Home() {
 	// Just a state variable we use to store our user's public wallet address
 	const [currAccount, setCurrentAccount] = useState('');
+	const contractAddress = '0x72A1DA3D8E71449Bd1AB86838884922026DcA1bf';
+	const contractABI = ABI.abi;
+	const [countWaves, setCountWaves] = useState(0);
 
 	const checkIfWalletIsConnected = () => {
 		// First make sure we have access to window.ethereum
@@ -51,6 +55,28 @@ export default function Home() {
 			});
 	};
 
+	const wave = async () => {
+		const provider = new ethers.providers.Web3Provider(window.ethereum);
+		const signer = provider.getSigner();
+		const wavePortalContract = new ethers.Contract(
+			contractAddress,
+			contractABI,
+			signer
+		);
+
+		let count = await wavePortalContract.getTotalWaves();
+		console.log('Retreived total wave count...', count.toNumber());
+
+		const waveTxn = await wavePortalContract.wave();
+		console.log('Mining...', waveTxn.hash);
+		await waveTxn.wait();
+		console.log('Mined -- ', waveTxn.hash);
+
+		count = await wavePortalContract.getTotalWaves();
+		console.log('Retreived total wave count ...', count.toNumber());
+		setCountWaves(count.toNumber());
+	};
+
 	// This runs when the page loads
 	useEffect(() => {
 		checkIfWalletIsConnected();
@@ -82,13 +108,14 @@ export default function Home() {
 					at Metamask)
 				</div>
 
-				{/* <button className="waveButton" onClick={wave}> */}
 				<input
 					className={styles.TextField}
 					placeholder="Enter your message here"
 				></input>
 				<div className={styles.grid}>
-					<button className={styles.waveButton}>Wave at Me</button>
+					<button className={styles.waveButton} onClick={wave}>
+						Wave at Me
+					</button>
 					<button
 						className={styles.connectWallet}
 						onClick={connectWallet}
@@ -96,6 +123,7 @@ export default function Home() {
 						Connect Wallet
 					</button>
 				</div>
+				<div className={styles.card}>Total waves: {countWaves}</div>
 			</div>
 		</div>
 	);
