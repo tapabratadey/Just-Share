@@ -5,6 +5,7 @@ import { ethers } from 'ethers';
 import ABI from '../utils/WavePortal.json';
 import 'nprogress/nprogress.css';
 import nProgress from 'nprogress';
+import next from 'next';
 
 export default function Home() {
 	// Just a state variable we use to store our user's public wallet address
@@ -16,6 +17,7 @@ export default function Home() {
 	const message = useRef(null);
 
 	const getAllWaves = async () => {
+		console.log(window.provider);
 		const provider = new ethers.providers.Web3Provider(window.ethereum);
 		const signer = provider.getSigner();
 		const wavePortalContract = new ethers.Contract(
@@ -26,17 +28,8 @@ export default function Home() {
 
 		let waves = await wavePortalContract.getAllWaves();
 
-		let wavesCleaned = [];
-		waves.forEach((wave) => {
-			wavesCleaned.push({
-				address: wave.waver,
-				timestamp: new Date(wave.timestamp * 1000).toLocaleString(),
-				message: wave.message,
-			});
-		});
-		setAllWaves(wavesCleaned);
 		wavePortalContract.on('NewWave', (from, timestamp, message) => {
-			console.log('NewWave', from, timestamp, message);
+			// console.log('NewWave', from, timestamp, message);
 			setAllWaves((oldArray) => [
 				...oldArray,
 				{
@@ -46,6 +39,24 @@ export default function Home() {
 				},
 			]);
 		});
+
+		let wavesCleaned = [];
+		waves.forEach((wave) => {
+			if (
+				wave.message == '🐞 testing 3 🤞' ||
+				wave.message == 'testing 2 🤖'
+			) {
+				// console.log(wave.message);
+				next;
+			} else {
+				wavesCleaned.push({
+					address: wave.waver,
+					timestamp: new Date(wave.timestamp * 1000).toLocaleString(),
+					message: wave.message,
+				});
+			}
+		});
+		setAllWaves(wavesCleaned);
 	};
 
 	const checkIfWalletIsConnected = () => {
