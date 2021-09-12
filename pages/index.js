@@ -3,6 +3,8 @@ import styles from '../styles/Home.module.css';
 import { useEffect, useState, useRef } from 'react';
 import { ethers } from 'ethers';
 import ABI from '../utils/WavePortal.json';
+import 'nprogress/nprogress.css';
+import nProgress from 'nprogress';
 
 export default function Home() {
 	// Just a state variable we use to store our user's public wallet address
@@ -45,7 +47,7 @@ export default function Home() {
 			return;
 		} else {
 			// Now check if we are connected to the ethereum network
-			console.log('We have the ethereum object', ethereum);
+			// console.log('We have the ethereum object', ethereum);
 		}
 		// Check if we are authorized to access the user's wallet
 		ethereum.request({ method: 'eth_accounts' }).then((accounts) => {
@@ -53,7 +55,7 @@ export default function Home() {
 			if (accounts.length !== 0) {
 				// Grab the first account we have access to.
 				const account = accounts[0];
-				console.log('Found an authorized account: ', account);
+				// console.log('Found an authorized account: ', account);
 
 				// Store the users public wallet address for later!
 				setCurrentAccount(account);
@@ -72,7 +74,7 @@ export default function Home() {
 		ethereum
 			.request({ method: 'eth_requestAccounts' })
 			.then((accounts) => {
-				console.log('Connected', accounts[0]);
+				// console.log('Connected', accounts[0]);
 				setCurrentAccount(accounts[0]);
 			})
 			.catch((err) => {
@@ -90,27 +92,25 @@ export default function Home() {
 		);
 
 		let count = await wavePortalContract.getTotalWaves();
-		console.log('Retreived total wave count...', count.toNumber());
+		// console.log('Retreived total wave count...', count.toNumber());
 
 		const waveTxn = await wavePortalContract.wave(message);
-		console.log('Mining...', waveTxn.hash);
+		// console.log('Mining...', waveTxn.hash);
+		nProgress.start();
 		await waveTxn.wait();
-		console.log('Mined -- ', waveTxn.hash);
-
+		// console.log('Mined -- ', waveTxn.hash);
+		nProgress.done();
+		// reload the page
+		window.location.reload();
 		count = await wavePortalContract.getTotalWaves();
-		console.log('Retreived total wave count ...', count.toNumber());
+		// console.log('Retreived total wave count ...', count.toNumber());
 		setCountWaves(count.toNumber());
 	};
 
 	const handleWave = async (event) => {
 		event.preventDefault();
-		console.log(message.current.value);
+		// console.log(message.current.value);
 		wave(message.current.value);
-	};
-
-	const submit = async () => {
-		event.preventDefault();
-		console.log(message.current.value);
 	};
 
 	// This runs when the page loads
