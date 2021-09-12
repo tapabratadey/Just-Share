@@ -1,8 +1,61 @@
 import Head from 'next/head';
-import Image from 'next/image';
 import styles from '../styles/Home.module.css';
+import { useEffect, useState } from 'react';
+import { ethers } from 'ethers';
 
 export default function Home() {
+	// Just a state variable we use to store our user's public wallet address
+	const [currAccount, setCurrentAccount] = useState('');
+
+	const checkIfWalletIsConnected = () => {
+		// First make sure we have access to window.ethereum
+		const { ethereum } = window;
+		if (!ethereum) {
+			console.log(
+				'Make sure you have MetaMask installed and logged in to your browser'
+			);
+			return;
+		} else {
+			// Now check if we are connected to the ethereum network
+			console.log('We have the ethereum object', ethereum);
+		}
+		// Check if we are authorized to access the user's wallet
+		ethereum.request({ method: 'eth_accounts' }).then((accounts) => {
+			// We could have multiple accounts. Check for one.
+			if (accounts.length !== 0) {
+				// Grab the first account we have access to.
+				const account = accounts[0];
+				console.log('Found an authorized account: ', account);
+
+				// Store the users public wallet address for later!
+				setCurrentAccount(account);
+			} else {
+				console.log('No authorized accounts found');
+			}
+		});
+	};
+
+	const connectWallet = () => {
+		const { ethereum } = window;
+		if (!ethereum) {
+			alert('Get metamask!');
+		}
+		ethereum
+			.request({ method: 'eth_requestAccounts' })
+			.then((accounts) => {
+				console.log('Connected', accounts[0]);
+				setCurrentAccount(accounts[0]);
+			})
+			.catch((err) => {
+				console.log('Error', err);
+			});
+	};
+
+	// This runs when the page loads
+	useEffect(() => {
+		checkIfWalletIsConnected();
+	}, []);
+
 	return (
 		<div className={styles.container}>
 			<Head>
@@ -36,7 +89,10 @@ export default function Home() {
 				></input>
 				<div className={styles.grid}>
 					<button className={styles.waveButton}>Wave at Me</button>
-					<button className={styles.connectWallet}>
+					<button
+						className={styles.connectWallet}
+						onClick={connectWallet}
+					>
 						Connect Wallet
 					</button>
 				</div>
