@@ -9,7 +9,7 @@ import nProgress from 'nprogress';
 export default function Home() {
 	// Just a state variable we use to store our user's public wallet address
 	const [currAccount, setCurrentAccount] = useState('');
-	const contractAddress = '0x718CD9d4b2D3fDdA153080a8Ca3B5179dC9A207a';
+	const contractAddress = '0x7c2f0320523e80Db05b85c6c936f3f37Ea917aAB';
 	const contractABI = ABI.abi;
 	const [countWaves, setCountWaves] = useState(0);
 	const [allWaves, setAllWaves] = useState([]);
@@ -35,6 +35,17 @@ export default function Home() {
 			});
 		});
 		setAllWaves(wavesCleaned);
+		wavePortalContract.on('NewWave', (from, timestamp, message) => {
+			console.log('NewWave', from, timestamp, message);
+			setAllWaves((oldArray) => [
+				...oldArray,
+				{
+					address: from,
+					timestamp: new Date(timestamp * 1000),
+					message: message,
+				},
+			]);
+		});
 	};
 
 	const checkIfWalletIsConnected = () => {
@@ -110,7 +121,7 @@ export default function Home() {
 	const handleWave = async (event) => {
 		event.preventDefault();
 		// console.log(message.current.value);
-		wave(message.current.value);
+		wave(message.current.value, { gasLimit: 300000 });
 	};
 
 	// This runs when the page loads
@@ -138,16 +149,18 @@ export default function Home() {
 				<div className={styles.bio}>Just share. Anything you want.</div>
 
 				<div className={styles.bio}>
-					Favorite quote? song? poem? book? Anything. Whatever you
-					share will be stored on the blockchain faheva! 🤯{' '}
-					<a href="https://rinkeby.etherscan.io/address/0x718CD9d4b2D3fDdA153080a8Ca3B5179dC9A207a">
+					Favorite quote? song? poem? book? <b>Anything</b>. Whatever
+					you share will be stored on the blockchain <b>faaheva! </b>{' '}
+					🤯{' '}
+					<a href="https://rinkeby.etherscan.io/address/0x7c2f0320523e80Db05b85c6c936f3f37Ea917aAB">
 						Check it out here 👉 🔗
 					</a>
 				</div>
 				<div className={styles.bio}>
-					Connect a Crypto Wallet like Metamask to authenticate
-					yourself on this amazing blockchain app. Btw I will send you
-					some free fake ETH once you share something here 😉
+					Connect a Crypto Wallet like <b>Metamask</b> to authenticate
+					yourself on this amazing blockchain app. Btw I will send a
+					<b> lucky winners</b> some free <b>fake</b> ETH once you
+					share something here 😉
 				</div>
 				<input
 					className={styles.TextField}
@@ -157,17 +170,17 @@ export default function Home() {
 				<form onSubmit={handleWave}>
 					<div className={styles.grid}>
 						<button className={styles.waveButton} type="submit">
-							Just Share 📤
+							Just Share
 						</button>
 						<button
 							className={styles.connectWallet}
 							onClick={connectWallet}
 						>
-							Connect Wallet 🔐
+							Connect Wallet
 						</button>
 					</div>
 				</form>
-				<div className={styles.header}>Messages 📥</div>
+				<div className={styles.description}>Messages 📥</div>
 				<div className={styles.box}>
 					{allWaves
 						.map((wave, index) => {
