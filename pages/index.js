@@ -1,15 +1,39 @@
 import Head from 'next/head';
 import styles from '../styles/Home.module.css';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { ethers } from 'ethers';
 import ABI from '../utils/WavePortal.json';
 
 export default function Home() {
 	// Just a state variable we use to store our user's public wallet address
 	const [currAccount, setCurrentAccount] = useState('');
-	const contractAddress = '0x72A1DA3D8E71449Bd1AB86838884922026DcA1bf';
+	const contractAddress = '0xcFdd71F4cAb5E353b718992eE17425aa9F44Fe3F';
 	const contractABI = ABI.abi;
 	const [countWaves, setCountWaves] = useState(0);
+	const [allWaves, setAllWaves] = useState([]);
+	const message = useRef(null);
+
+	const getAllWaves = async () => {
+		const provider = new ethers.providers.Web3Provider(window.ethereum);
+		const signer = provider.getSigner();
+		const wavePortalContract = new ethers.Contract(
+			contractAddress,
+			contractABI,
+			signer
+		);
+
+		let waves = await wavePortalContract.getAllWaves();
+
+		let wavesCleaned = [];
+		waves.forEach((wave) => {
+			wavesCleaned.push({
+				address: wave.waver,
+				timestamp: new Date(wave.timestamp * 1000).toLocaleString(),
+				message: wave.message,
+			});
+		});
+		setAllWaves(wavesCleaned);
+	};
 
 	const checkIfWalletIsConnected = () => {
 		// First make sure we have access to window.ethereum
@@ -33,6 +57,7 @@ export default function Home() {
 
 				// Store the users public wallet address for later!
 				setCurrentAccount(account);
+				getAllWaves();
 			} else {
 				console.log('No authorized accounts found');
 			}
@@ -55,7 +80,7 @@ export default function Home() {
 			});
 	};
 
-	const wave = async () => {
+	const wave = async (message) => {
 		const provider = new ethers.providers.Web3Provider(window.ethereum);
 		const signer = provider.getSigner();
 		const wavePortalContract = new ethers.Contract(
@@ -67,7 +92,7 @@ export default function Home() {
 		let count = await wavePortalContract.getTotalWaves();
 		console.log('Retreived total wave count...', count.toNumber());
 
-		const waveTxn = await wavePortalContract.wave();
+		const waveTxn = await wavePortalContract.wave(message);
 		console.log('Mining...', waveTxn.hash);
 		await waveTxn.wait();
 		console.log('Mined -- ', waveTxn.hash);
@@ -77,13 +102,24 @@ export default function Home() {
 		setCountWaves(count.toNumber());
 	};
 
+	const handleWave = async (event) => {
+		event.preventDefault();
+		console.log(message.current.value);
+		wave(message.current.value);
+	};
+
+	const submit = async () => {
+		event.preventDefault();
+		console.log(message.current.value);
+	};
+
 	// This runs when the page loads
 	useEffect(() => {
 		checkIfWalletIsConnected();
 	}, []);
 
 	return (
-		<div className={styles.container}>
+		<div className={styles.mainContainer}>
 			<Head>
 				<title>Just share</title>
 				<meta
@@ -107,23 +143,37 @@ export default function Home() {
 					signing in with your Crypto wallet. (You can sign up for one
 					at Metamask)
 				</div>
-
 				<input
 					className={styles.TextField}
 					placeholder="Enter your message here"
+					ref={message}
 				></input>
-				<div className={styles.grid}>
-					<button className={styles.waveButton} onClick={wave}>
-						Wave at Me
-					</button>
-					<button
-						className={styles.connectWallet}
-						onClick={connectWallet}
-					>
-						Connect Wallet
-					</button>
-				</div>
-				<div className={styles.card}>Total waves: {countWaves}</div>
+				<form onSubmit={handleWave}>
+					<div className={styles.grid}>
+						<button className={styles.waveButton} type="submit">
+							Wave at Me
+						</button>
+						<button
+							className={styles.connectWallet}
+							onClick={connectWallet}
+						>
+							Connect Wallet
+						</button>
+					</div>
+				</form>
+				{allWaves
+					.map((wave, index) => {
+						return (
+							<div key={index}>
+								<div className={styles.code}>
+									<p>Address: {wave.address}</p>
+									<p>Time: {wave.timestamp.toString()}</p>
+									<p>Message: {wave.message}</p>
+								</div>
+							</div>
+						);
+					})
+					.reverse()}
 			</div>
 		</div>
 	);
