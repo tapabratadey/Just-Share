@@ -13,34 +13,34 @@ export default function Home() {
 				/>
 				<link rel="icon" href="/favicon.ico" />
 			</Head>
-			<div className={styles.grid}>
-				<h1>Ayyy namaste 🙏</h1>
-				<p>
-					Just share something with me. Maybe your favorite
-					inspirational quote? song? poem? book?
-				</p>
-				<p>Whatever you share here will be stored on the blockchain!</p>
-				<p>
-					As it&#39;s a web3 application, you can authenticate your
-					identity by signing in with your Ethereum wallet.
-				</p>
-				{/* <p>
-					Why do we need Metamask? Well. We need to be able to call
-					functions on our smart contract that live on the blockchain.
-					And, to do that we need to have a wallet that has our
-					Ethereum address and private key. But, we need something to
-					connect our website with our wallet so we can securely pass
-					our wallet credentials to our website so our website can use
-					those credentials to call our smart contract. You need to
-					have valid credentials to access functions on smart
-					contracts. It's almost like authentication. We need
-					something to "login" to the blockchain and then use those
-					login credentials to make API requests from our website.
-				</p> */}
-				<p>(You can sign up for one at Metamask)</p>
+			<div className={styles.dataContainer}>
+				<div className={styles.title}>Namaste 🙏</div>
+				<br />
+				<div className={styles.header}>Welcome to Web3!</div>
+
+				<div className={styles.bio}>
+					Just share something here. Maybe your favorite quote? song?
+					poem? book? Whatever you share here will be stored on the
+					blockchain!
+				</div>
+				<div className={styles.bio}>
+					Blockchain applications requires you to authenticate by
+					signing in with your Crypto wallet. (You can sign up for one
+					at Metamask)
+				</div>
+
+				{/* <button className="waveButton" onClick={wave}> */}
+				<input
+					className={styles.TextField}
+					placeholder="Enter your message here"
+				></input>
+				<div className={styles.grid}>
+					<button className={styles.waveButton}>Wave at Me</button>
+					<button className={styles.connectWallet}>
+						Connect Wallet
+					</button>
+				</div>
 			</div>
-			<input className="textField"></input>
-			<button className="waveButton">Wave at Me</button>
 		</div>
 	);
 }
