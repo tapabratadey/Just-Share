@@ -158,9 +158,9 @@ export default function Home() {
 				</div>
 				<div className={styles.bio}>
 					Connect a Crypto Wallet like <b>Metamask</b> to authenticate
-					yourself on this amazing blockchain app. Btw I will send a
-					<b> lucky winners</b> some free <b>fake</b> ETH once you
-					share something here 😉
+					yourself on this amazing blockchain app. Btw I will send
+					some <b> lucky winners</b> some free <b>fake</b> ETH once
+					you share something here 😉
 				</div>
 				<input
 					className={styles.TextField}
