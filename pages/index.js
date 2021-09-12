@@ -21,7 +21,7 @@ export default function Home() {
 				</p>
 				<p>Whatever you share here will be stored on the blockchain!</p>
 				<p>
-					As it's a web3 application, you can authenticate your
+					As it&#39;s a web3 application, you can authenticate your
 					identity by signing in with your Ethereum wallet.
 				</p>
 				{/* <p>
