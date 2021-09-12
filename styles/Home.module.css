@@ -157,7 +157,7 @@
 .waveButton:hover,
 .waveButton:focus,
 .waveButton:active {
-	color: #ff8c08;
+	color: rgb(114, 68, 68);
 	border-color: #cbcbcc;
 }
 
@@ -187,7 +187,7 @@
 .connectWallet:hover,
 .connectWallet:focus,
 .connectWallet:active {
-	color: #ff8c08c2;
+	color: rgb(60, 83, 119);
 	border-color: #cbcbcc;
 }
 
