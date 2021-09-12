@@ -180,7 +180,9 @@ export default function Home() {
 						</button>
 					</div>
 				</form>
-				<div className={styles.description}>Messages 📥</div>
+				<div className={styles.description}>
+					{allWaves.length} Messages 📥
+				</div>
 				<div className={styles.box}>
 					{allWaves
 						.map((wave, index) => {
