@@ -7,7 +7,7 @@ import ABI from '../utils/WavePortal.json';
 export default function Home() {
 	// Just a state variable we use to store our user's public wallet address
 	const [currAccount, setCurrentAccount] = useState('');
-	const contractAddress = '0xcFdd71F4cAb5E353b718992eE17425aa9F44Fe3F';
+	const contractAddress = '0xA590bF4a167A8D0c159609eaa5b2F1B85eFc5Ca4';
 	const contractABI = ABI.abi;
 	const [countWaves, setCountWaves] = useState(0);
 	const [allWaves, setAllWaves] = useState([]);
@@ -119,7 +119,7 @@ export default function Home() {
 	}, []);
 
 	return (
-		<div className={styles.mainContainer}>
+		<div className={styles.container}>
 			<Head>
 				<title>Just share</title>
 				<meta
@@ -161,19 +161,22 @@ export default function Home() {
 						</button>
 					</div>
 				</form>
-				{allWaves
-					.map((wave, index) => {
-						return (
-							<div key={index}>
-								<div className={styles.code}>
-									<p>Address: {wave.address}</p>
-									<p>Time: {wave.timestamp.toString()}</p>
-									<p>Message: {wave.message}</p>
+				<div className={styles.header}>Messages 📥</div>
+				<div className={styles.box}>
+					{allWaves
+						.map((wave, index) => {
+							return (
+								<div key={index}>
+									<div className={styles.code}>
+										<p>Address: {wave.address}</p>
+										<p>Time: {wave.timestamp.toString()}</p>
+										<p>Message: {wave.message}</p>
+									</div>
 								</div>
-							</div>
-						);
-					})
-					.reverse()}
+							);
+						})
+						.reverse()}
+				</div>
 			</div>
 		</div>
 	);
