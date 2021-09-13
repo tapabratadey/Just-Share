@@ -15,9 +15,10 @@ export default function Home() {
 	const [countWaves, setCountWaves] = useState(0);
 	const [allWaves, setAllWaves] = useState([]);
 	const message = useRef(null);
+	const [isConnected, setIsConnected] = useState(false);
 
 	const getAllWaves = async () => {
-		console.log(window.provider);
+		// console.log(window.provider);
 		const provider = new ethers.providers.Web3Provider(window.ethereum);
 		const signer = provider.getSigner();
 		const wavePortalContract = new ethers.Contract(
@@ -44,14 +45,17 @@ export default function Home() {
 		waves.forEach((wave) => {
 			if (
 				wave.message == '🐞 testing 3 🤞' ||
-				wave.message == 'testing 2 🤖'
+				wave.message == 'testing 2 🤖' ||
+				wave.message == 'Hello!' ||
+				wave.message == 'check' ||
+				wave.message == 'yolo'
 			) {
 				// console.log(wave.message);
 				next;
 			} else {
 				wavesCleaned.push({
 					address: wave.waver,
-					timestamp: new Date(wave.timestamp * 1000).toLocaleString(),
+					timestamp: new Date(wave.timestamp * 1000),
 					message: wave.message,
 				});
 			}
@@ -70,38 +74,41 @@ export default function Home() {
 		} else {
 			// Now check if we are connected to the ethereum network
 			// console.log('We have the ethereum object', ethereum);
-		}
-		// Check if we are authorized to access the user's wallet
-		ethereum.request({ method: 'eth_accounts' }).then((accounts) => {
-			// We could have multiple accounts. Check for one.
-			if (accounts.length !== 0) {
-				// Grab the first account we have access to.
-				const account = accounts[0];
-				// console.log('Found an authorized account: ', account);
+			// Check if we are authorized to access the user's wallet
+			ethereum.request({ method: 'eth_accounts' }).then((accounts) => {
+				// We could have multiple accounts. Check for one.
+				if (accounts.length !== 0) {
+					// Grab the first account we have access to.
+					const account = accounts[0];
+					// console.log('Found an authorized account: ', account);
 
-				// Store the users public wallet address for later!
-				setCurrentAccount(account);
-				getAllWaves();
-			} else {
-				console.log('No authorized accounts found');
-			}
-		});
+					// Store the users public wallet address for later!
+					setCurrentAccount(account);
+					getAllWaves();
+					setIsConnected(true);
+				} else {
+					console.log('No authorized accounts found');
+				}
+			});
+		}
 	};
 
 	const connectWallet = () => {
 		const { ethereum } = window;
 		if (!ethereum) {
-			alert('Get metamask!');
+			alert('Please install MetaMask and log in to your browser');
+			window.location.href = 'https://metamask.io/download.html';
+		} else {
+			ethereum
+				.request({ method: 'eth_requestAccounts' })
+				.then((accounts) => {
+					// console.log('Connected', accounts[0]);
+					setCurrentAccount(accounts[0]);
+				})
+				.catch((err) => {
+					console.log('Error', err);
+				});
 		}
-		ethereum
-			.request({ method: 'eth_requestAccounts' })
-			.then((accounts) => {
-				// console.log('Connected', accounts[0]);
-				setCurrentAccount(accounts[0]);
-			})
-			.catch((err) => {
-				console.log('Error', err);
-			});
 	};
 
 	const wave = async (message) => {
@@ -131,7 +138,6 @@ export default function Home() {
 
 	const handleWave = async (event) => {
 		event.preventDefault();
-		// console.log(message.current.value);
 		wave(message.current.value, { gasLimit: 300000 });
 	};
 
@@ -154,8 +160,6 @@ export default function Home() {
 				<div className={styles.header}>
 					Welcome to Just Share on Web3!
 				</div>
-				{/* <br /> */}
-				{/* <div className={styles.header}></div> */}
 
 				<div className={styles.bio}>Just share. Anything you want.</div>
 
@@ -168,10 +172,17 @@ export default function Home() {
 					</a>
 				</div>
 				<div className={styles.bio}>
-					Connect a Crypto Wallet like <b>Metamask</b> to authenticate
-					yourself on this amazing blockchain app. Btw I will send
-					some <b> lucky winners</b> some free <b>fake</b> ETH once
-					you share something here 😉
+					Connect a Crypto Wallet like{' '}
+					<b>
+						<a style={{ color: 'red' }} href="https://metamask.io/">
+							Metamask
+						</a>
+					</b>{' '}
+					<b style={{ color: 'orange' }}>@Rinkeby Test Network</b> to
+					authenticate yourself on this amazing blockchain app. Btw I
+					will send some <b> lucky winners</b> some free <b>fake</b>{' '}
+					<b style={{ color: '#0070f3' }}>ETH</b> once you share
+					something here 😉
 				</div>
 				<input
 					className={styles.TextField}
@@ -180,34 +191,55 @@ export default function Home() {
 				></input>
 				<form onSubmit={handleWave}>
 					<div className={styles.grid}>
-						<button className={styles.waveButton} type="submit">
+						<button
+							className={styles.waveButton}
+							type="submit"
+							disabled={!isConnected}
+						>
 							Just Share
 						</button>
 						<button
 							className={styles.connectWallet}
 							onClick={connectWallet}
+							type="button"
 						>
 							Connect Wallet
 						</button>
 					</div>
 				</form>
-				<div className={styles.description}>
-					{allWaves.length} Messages 📥
-				</div>
-				<div className={styles.box}>
-					{allWaves
-						.map((wave, index) => {
-							return (
-								<div key={index}>
-									<div className={styles.code}>
-										<p>Address: {wave.address}</p>
-										<p>Time: {wave.timestamp.toString()}</p>
-										<p>Message: {wave.message}</p>
-									</div>
-								</div>
-							);
-						})
-						.reverse()}
+				<div>
+					{isConnected ? (
+						<div>
+							<div className={styles.grid}>
+								{allWaves.length} Messages 📥
+							</div>
+							<div className={styles.box}>
+								{allWaves
+									.map((wave, index) => {
+										return (
+											<div key={index}>
+												<div className={styles.code}>
+													<p>🔊 {wave.address}</p>
+													<p>
+														⏳{' '}
+														{wave.timestamp.toString()}
+													</p>
+													<p>📥 {wave.message}</p>
+												</div>
+											</div>
+										);
+									})
+									.reverse()}
+							</div>
+						</div>
+					) : (
+						<div className={styles.grid}>
+							<p style={{ fontSize: '12px' }}>
+								{' '}
+								🔴 Not Connected
+							</p>
+						</div>
+					)}
 				</div>
 			</div>
 		</div>
