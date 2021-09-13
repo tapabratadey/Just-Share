@@ -22,7 +22,7 @@ The website will also let people connect their crypto wallets and interact with 
 7. **Testnet**: A tetstnet that is used to test our smart contract. It's a separate network from the main network. Main network is used for the real world, which is costly. We use `Rinkeby` testnet for our development. 
 8. **Faucet**: A service that gives free fake ETH to users.
 
-## 🔗 **Live Demo**
+## 🔗 **Live App**
 
 [![Demo](./assets/justshare.png)](https://justshare.vercel.app)
 
