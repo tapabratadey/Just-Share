@@ -2,7 +2,7 @@
 
 ## 📝 **Web3 App with Solidity + Ethereum Smart Contracts + Next.js + Vercel**
 
-Build & deploy a smart contract to the blockchain, and build a Web3 client app to interact with the smart contract.
+Built & deployed a smart contract on the blockchain, and built a Web3 client app to interact with the smart contract.
 
 A portal on web3 where anyone on the internet can interact with the web3 app and share something with you like a message, song, books, etc. The data is stored on the blockchain and is encrypted through an Ethereum smart contract.
 
