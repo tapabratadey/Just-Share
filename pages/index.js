@@ -132,7 +132,6 @@ export default function Home() {
 		// reload the page
 		window.location.reload();
 		count = await wavePortalContract.getTotalWaves();
-		// console.log('Retreived total wave count ...', count.toNumber());
 		setCountWaves(count.toNumber());
 	};
 
