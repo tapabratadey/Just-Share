@@ -8,240 +8,226 @@ import nProgress from 'nprogress';
 import next from 'next';
 
 export default function Home() {
-	// Just a state variable we use to store our user's public wallet address
-	const [currAccount, setCurrentAccount] = useState('');
-	const contractAddress = '0x7c2f0320523e80Db05b85c6c936f3f37Ea917aAB';
-	const contractABI = ABI.abi;
-	const [countWaves, setCountWaves] = useState(0);
-	const [allWaves, setAllWaves] = useState([]);
-	const message = useRef(null);
-	const [isConnected, setIsConnected] = useState(false);
+  // Just a state variable we use to store our user's public wallet address
+  const [currAccount, setCurrentAccount] = useState('');
+  const contractAddress = '0x7c2f0320523e80Db05b85c6c936f3f37Ea917aAB';
+  const contractABI = ABI.abi;
+  const [countWaves, setCountWaves] = useState(0);
+  const [allWaves, setAllWaves] = useState([]);
+  const message = useRef(null);
+  const [isConnected, setIsConnected] = useState(false);
 
-	const getAllWaves = async () => {
-		// console.log(window.provider);
-		const provider = new ethers.providers.Web3Provider(window.ethereum);
-		const signer = provider.getSigner();
-		const wavePortalContract = new ethers.Contract(
-			contractAddress,
-			contractABI,
-			signer
-		);
+  const getAllWaves = async () => {
+    // console.log(window.provider);
+    const provider = new ethers.providers.Web3Provider(window.ethereum);
+    const signer = provider.getSigner();
+    const wavePortalContract = new ethers.Contract(
+      contractAddress,
+      contractABI,
+      signer
+    );
 
-		let waves = await wavePortalContract.getAllWaves();
+    let waves = await wavePortalContract.getAllWaves();
 
-		wavePortalContract.on('NewWave', (from, timestamp, message) => {
-			// console.log('NewWave', from, timestamp, message);
-			setAllWaves((oldArray) => [
-				...oldArray,
-				{
-					address: from,
-					timestamp: new Date(timestamp * 1000),
-					message: message,
-				},
-			]);
-		});
+    wavePortalContract.on('NewWave', (from, timestamp, message) => {
+      // console.log('NewWave', from, timestamp, message);
+      setAllWaves((oldArray) => [
+        ...oldArray,
+        {
+          address: from,
+          timestamp: new Date(timestamp * 1000),
+          message: message,
+        },
+      ]);
+    });
 
-		let wavesCleaned = [];
-		waves.forEach((wave) => {
-			if (
-				wave.message == '🐞 testing 3 🤞' ||
-				wave.message == 'testing 2 🤖' ||
-				wave.message == 'Hello!' ||
-				wave.message == 'check' ||
-				wave.message == 'yolo'
-			) {
-				// console.log(wave.message);
-				next;
-			} else {
-				wavesCleaned.push({
-					address: wave.waver,
-					timestamp: new Date(wave.timestamp * 1000),
-					message: wave.message,
-				});
-			}
-		});
-		setAllWaves(wavesCleaned);
-	};
+    let wavesCleaned = [];
+    waves.forEach((wave) => {
+      if (
+        wave.message == '🐞 testing 3 🤞' ||
+        wave.message == 'testing 2 🤖' ||
+        wave.message == 'Hello!' ||
+        wave.message == 'check' ||
+        wave.message == 'yolo'
+      ) {
+        // console.log(wave.message);
+        next;
+      } else {
+        wavesCleaned.push({
+          address: wave.waver,
+          timestamp: new Date(wave.timestamp * 1000),
+          message: wave.message,
+        });
+      }
+    });
+    setAllWaves(wavesCleaned);
+  };
 
-	const checkIfWalletIsConnected = () => {
-		// First make sure we have access to window.ethereum
-		const { ethereum } = window;
-		if (!ethereum) {
-			console.log(
-				'Make sure you have MetaMask installed and logged in to your browser'
-			);
-			return;
-		} else {
-			// Now check if we are connected to the ethereum network
-			// console.log('We have the ethereum object', ethereum);
-			// Check if we are authorized to access the user's wallet
-			ethereum.request({ method: 'eth_accounts' }).then((accounts) => {
-				// We could have multiple accounts. Check for one.
-				if (accounts.length !== 0) {
-					// Grab the first account we have access to.
-					const account = accounts[0];
-					// console.log('Found an authorized account: ', account);
+  const checkIfWalletIsConnected = () => {
+    // First make sure we have access to window.ethereum
+    const { ethereum } = window;
+    if (!ethereum) {
+      console.log(
+        'Make sure you have MetaMask installed and logged in to your browser'
+      );
+      return;
+    } else {
+      // Now check if we are connected to the ethereum network
+      // console.log('We have the ethereum object', ethereum);
+      // Check if we are authorized to access the user's wallet
+      ethereum.request({ method: 'eth_accounts' }).then((accounts) => {
+        // We could have multiple accounts. Check for one.
+        if (accounts.length !== 0) {
+          // Grab the first account we have access to.
+          const account = accounts[0];
+          // console.log('Found an authorized account: ', account);
 
-					// Store the users public wallet address for later!
-					setCurrentAccount(account);
-					getAllWaves();
-					setIsConnected(true);
-				} else {
-					console.log('No authorized accounts found');
-				}
-			});
-		}
-	};
+          // Store the users public wallet address for later!
+          setCurrentAccount(account);
+          getAllWaves();
+          setIsConnected(true);
+        } else {
+          console.log('No authorized accounts found');
+        }
+      });
+    }
+  };
 
-	const connectWallet = () => {
-		const { ethereum } = window;
-		if (!ethereum) {
-			alert('Please install MetaMask and log in to your browser');
-			window.location.href = 'https://metamask.io/download.html';
-		} else {
-			ethereum
-				.request({ method: 'eth_requestAccounts' })
-				.then((accounts) => {
-					// console.log('Connected', accounts[0]);
-					setCurrentAccount(accounts[0]);
-				})
-				.catch((err) => {
-					console.log('Error', err);
-				});
-		}
-	};
+  const connectWallet = () => {
+    const { ethereum } = window;
+    if (!ethereum) {
+      alert('Please install MetaMask and log in to your browser');
+      window.location.href = 'https://metamask.io/download.html';
+    } else {
+      ethereum
+        .request({ method: 'eth_requestAccounts' })
+        .then((accounts) => {
+          // console.log('Connected', accounts[0]);
+          setCurrentAccount(accounts[0]);
+        })
+        .catch((err) => {
+          console.log('Error', err);
+        });
+    }
+  };
 
-	const wave = async (message) => {
-		const provider = new ethers.providers.Web3Provider(window.ethereum);
-		const signer = provider.getSigner();
-		const wavePortalContract = new ethers.Contract(
-			contractAddress,
-			contractABI,
-			signer
-		);
+  const wave = async (message) => {
+    const provider = new ethers.providers.Web3Provider(window.ethereum);
+    const signer = provider.getSigner();
+    const wavePortalContract = new ethers.Contract(
+      contractAddress,
+      contractABI,
+      signer
+    );
 
-		let count = await wavePortalContract.getTotalWaves();
-		// console.log('Retreived total wave count...', count.toNumber());
+    let count = await wavePortalContract.getTotalWaves();
+    // console.log('Retreived total wave count...', count.toNumber());
 
-		const waveTxn = await wavePortalContract.wave(message);
-		// console.log('Mining...', waveTxn.hash);
-		nProgress.start();
-		await waveTxn.wait();
-		// console.log('Mined -- ', waveTxn.hash);
-		nProgress.done();
-		// reload the page
-		window.location.reload();
-		count = await wavePortalContract.getTotalWaves();
-		// console.log('Retreived total wave count ...', count.toNumber());
-		setCountWaves(count.toNumber());
-	};
+    const waveTxn = await wavePortalContract.wave(message);
+    // console.log('Mining...', waveTxn.hash);
+    nProgress.start();
+    await waveTxn.wait();
+    // console.log('Mined -- ', waveTxn.hash);
+    nProgress.done();
+    // reload the page
+    window.location.reload();
+    count = await wavePortalContract.getTotalWaves();
+    // console.log('Retreived total wave count ...', count.toNumber());
+    setCountWaves(count.toNumber());
+  };
 
-	const handleWave = async (event) => {
-		event.preventDefault();
-		wave(message.current.value, { gasLimit: 300000 });
-	};
+  const handleWave = async (event) => {
+    event.preventDefault();
+    wave(message.current.value, { gasLimit: 300000 });
+  };
 
-	// This runs when the page loads
-	useEffect(() => {
-		checkIfWalletIsConnected();
-	}, []);
+  // This runs when the page loads
+  useEffect(() => {
+    checkIfWalletIsConnected();
+  }, []);
 
-	return (
-		<div className={styles.container}>
-			<Head>
-				<title>Just Share</title>
-				<meta
-					name="description"
-					content="Generated by create next app"
-				/>
-				<link rel="icon" href="/favicon.ico" />
-			</Head>
-			<div className={styles.dataContainer}>
-				<div className={styles.header}>
-					Welcome to Just Share on Web3!
-				</div>
+  return (
+    <div className={styles.container}>
+      <Head>
+        <title>Just Share</title>
+        <meta name="description" content="Generated by create next app" />
+        <link rel="icon" href="/favicon.ico" />
+      </Head>
+      <div className={styles.dataContainer}>
+        <div className={styles.header}>Welcome to Just Share on Web3!</div>
 
-				<div className={styles.bio}>Just share. Anything you want.</div>
+        <div className={styles.bio}>Just share. Anything you want.</div>
 
-				<div className={styles.bio}>
-					Favorite quote? song? poem? book? <b>Anything</b>. Whatever
-					you share will be stored on the blockchain <b>faaheva! </b>{' '}
-					🤯{' '}
-					<a href="https://rinkeby.etherscan.io/address/0x7c2f0320523e80Db05b85c6c936f3f37Ea917aAB">
-						Check it out here 👉 🔗
-					</a>
-				</div>
-				<div className={styles.bio}>
-					Connect a Crypto Wallet like{' '}
-					<b>
-						<a style={{ color: 'red' }} href="https://metamask.io/">
-							Metamask
-						</a>
-					</b>{' '}
-					<b style={{ color: 'orange' }}>@Rinkeby Test Network</b> to
-					authenticate yourself on this amazing blockchain app. Btw I
-					will send some <b> lucky winners</b> some free <b>fake</b>{' '}
-					<b style={{ color: '#0070f3' }}>ETH</b> once you share
-					something here 😉
-				</div>
-				<input
-					className={styles.TextField}
-					placeholder="Enter your message here"
-					ref={message}
-				></input>
-				<form onSubmit={handleWave}>
-					<div className={styles.grid}>
-						<button
-							className={styles.waveButton}
-							type="submit"
-							disabled={!isConnected}
-						>
-							Just Share
-						</button>
-						<button
-							className={styles.connectWallet}
-							onClick={connectWallet}
-							type="button"
-						>
-							Connect Wallet
-						</button>
-					</div>
-				</form>
-				<div>
-					{isConnected ? (
-						<div>
-							<div className={styles.grid}>
-								{allWaves.length} Messages 📥
-							</div>
-							<div className={styles.box}>
-								{allWaves
-									.map((wave, index) => {
-										return (
-											<div key={index}>
-												<div className={styles.code}>
-													<p>🔊 {wave.address}</p>
-													<p>
-														⏳{' '}
-														{wave.timestamp.toString()}
-													</p>
-													<p>📥 {wave.message}</p>
-												</div>
-											</div>
-										);
-									})
-									.reverse()}
-							</div>
-						</div>
-					) : (
-						<div className={styles.grid}>
-							<p style={{ fontSize: '12px' }}>
-								{' '}
-								🔴 Not Connected
-							</p>
-						</div>
-					)}
-				</div>
-			</div>
-		</div>
-	);
+        <div className={styles.bio}>
+          Favorite quote? song? poem? book? <b>Anything</b>. Whatever you share
+          will be stored on the blockchain <b>faaheva! </b> 🤯{' '}
+          <a href="https://rinkeby.etherscan.io/address/0x7c2f0320523e80Db05b85c6c936f3f37Ea917aAB">
+            Check it out here 👉 🔗
+          </a>
+        </div>
+        <div className={styles.bio}>
+          Connect a Crypto Wallet like{' '}
+          <b>
+            <a style={{ color: 'red' }} href="https://metamask.io/">
+              Metamask
+            </a>
+          </b>{' '}
+          <b style={{ color: 'orange' }}>@Rinkeby Test Network</b> to
+          authenticate yourself on this amazing blockchain app. Btw I will send
+          some <b> lucky winners</b> some free <b>fake</b>{' '}
+          <b style={{ color: '#0070f3' }}>ETH</b> once you share something here
+          😉
+        </div>
+        <input
+          className={styles.TextField}
+          placeholder="Enter your message here"
+          ref={message}
+        ></input>
+        <form onSubmit={handleWave}>
+          <div className={styles.grid}>
+            <button
+              className={styles.waveButton}
+              type="submit"
+              disabled={!isConnected}
+            >
+              Just Share
+            </button>
+            <button
+              className={styles.connectWallet}
+              onClick={connectWallet}
+              type="button"
+            >
+              Connect Wallet
+            </button>
+          </div>
+        </form>
+        <div>
+          {isConnected ? (
+            <div>
+              <div className={styles.grid}>{allWaves.length} Messages 📥</div>
+              <div className={styles.box}>
+                {allWaves
+                  .map((wave, index) => {
+                    return (
+                      <div key={index}>
+                        <div className={styles.code}>
+                          <p>🔊 {wave.address}</p>
+                          <p>⏳ {wave.timestamp.toString()}</p>
+                          <p>📥 {wave.message}</p>
+                        </div>
+                      </div>
+                    );
+                  })
+                  .reverse()}
+              </div>
+            </div>
+          ) : (
+            <div className={styles.grid}>
+              <p style={{ fontSize: '12px' }}> 🔴 Not Connected</p>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
 }
